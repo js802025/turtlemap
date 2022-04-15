@@ -39,23 +39,28 @@ function updateLocations(socket) {
     channel.messages.fetch({limit:100}).then(messages => {
     var o = 0;
     messages.forEach((message, i) => {
+    //  console.log(Array.from(message.reactions.cache.keys()))
+      if (!Array.from(message.reactions.cache.keys()).includes("🤔")) {
       geocoder.geocode(message.content).then((res) => {
         if (res.length > 0) {
           var [attach] = message.attachments.values()
           var url = attach.url
           locations[message.content] = {longitude:res[0].longitude, latitude:res[0].latitude, tooltip:{content:"<p>"+message.content+"</p><img width='75%' src='"+url+"'/>"}, href:"https://discord.com/channels/803804129646215200/963292322123112448/"+message.id}
         }
-        console.log(o)
+      //  console.log(o)
         if (o === messages.size -1) resolve(locations)
         o++
       }).catch((err) => {
         console.log(err)
-      })
+      })} else {
+        if (o === messages.size -1) resolve(locations)
+        o++
+      }
     });
   })
 })
 locs.then((locations) => {
-  //console.log(locations)
+//  console.log(locations)
   socket.emit("locs", locations)
 })
 }
