@@ -4,6 +4,8 @@ const express = require("express")
 const { Client, Intents } = require('discord.js');
 const client = new Client({ intents: [Intents.FLAGS.GUILDS] });
 const nodeGeocoder = require("node-geocoder")
+const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
+
 
 const app = express()
 const port = process.env.PORT || 80
@@ -23,7 +25,7 @@ app.use(express.static(__dirname + '/web'));
 
 
 app.get("/", (req, res) => {
-  console.log("hello")
+//  console.log("hello")
   res.render("index.ejs")
 })
 const server = app.listen(port)
@@ -31,6 +33,16 @@ var io = require("socket.io")(server)
 io.on("connection", (socket) => {
   updateLocations(socket)
 })
+
+async function fetchAddress(params) {
+  return new Promise(async (resolve, reject) => {
+    var response = await fetch("http://api.positionstack.com/v1/forward?access_key=da447e4587b30998f4525e786849edbe&query="+encodeURIComponent(params))
+    var body = await response.text()
+  //  console.log(body)
+    resolve(JSON.parse(body).data)
+  })
+}
+
 function updateLocations(socket) {
 
   var channel = client.channels.cache.get("963292322123112448")
@@ -41,7 +53,7 @@ function updateLocations(socket) {
     messages.forEach((message, i) => {
     //  console.log(Array.from(message.reactions.cache.keys()))
       if (!Array.from(message.reactions.cache.keys()).includes("🤔")) {
-      geocoder.geocode(message.content).then((res) => {
+      fetchAddress(message.content).then((res) => {
         if (res.length > 0) {
           var [attach] = message.attachments.values()
           var url = attach.url
@@ -60,7 +72,7 @@ function updateLocations(socket) {
   })
 })
 locs.then((locations) => {
-//  console.log(locations)
+  //console.log(locations)
   socket.emit("locs", locations)
 })
 }
