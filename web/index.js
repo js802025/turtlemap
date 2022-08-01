@@ -97,7 +97,9 @@ $().ready(() => {
     lat: $("#lat").val(),
     lon: $("#lon").val(),
     imgurl: $("#imgurl").val(),
-  });
+  }).then(() => {
+    window.location.reload()
+  })
  })
 
  get(database_ref(database, "turtles/")).then((snapshot) => {
