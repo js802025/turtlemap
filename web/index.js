@@ -98,7 +98,30 @@ $().ready(() => {
     lon: $("#lon").val(),
     imgurl: $("#imgurl").val(),
   }).then(() => {
-    window.location.reload()
+    fetch("https://ptb.discord.com/api/webhooks/1003808660985741324/zELr3CYxlMKp0p0B1Vkruv5hpBwnwnMXN_mXu3UEAKD93Ckv6I80zwidQneX1xlCAkmf", {
+      method: "POST",
+      body: JSON.stringify({
+
+          "embeds": [
+            {
+              "author": {
+                "name": "TurtleMap"
+              },
+              "title": "New Turtle Location",
+              "description": $("#address").val(),
+              "color": 15158332,
+              
+              "image": {
+                "url": $("#imgurl").val()
+              }
+            }
+          ]
+        }
+      )
+    }).then(() => {
+      window.location.reload()
+    })
+    
   })
  })
 
